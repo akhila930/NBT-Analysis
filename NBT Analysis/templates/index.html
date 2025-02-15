@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBT Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .nav-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .function-button {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            border: none;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            box-shadow: 5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff;
+        }
+        .function-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .function-button i {
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+        .function-button.btn-primary {
+            background: linear-gradient(145deg, #0d6efd, #0b5ed7);
+            color: white;
+        }
+        .function-button.btn-success {
+            background: linear-gradient(145deg, #198754, #157347);
+            color: white;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .btn {
+            border-radius: 10px;
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            padding: 10px 15px;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+        }
+        /* Custom styles for section headers */
+        .section-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .section-header i {
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+        /* Custom animation for buttons */
+        @keyframes buttonPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .function-button:active {
+            animation: buttonPulse 0.3s ease-in-out;
+        }
+        .function-button.active {
+            transform: translateY(2px);
+            box-shadow: inset 3px 3px 5px rgba(0,0,0,0.1);
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+        }
+        .function-button.btn-primary.active {
+            background: linear-gradient(145deg, #0b5ed7, #0d6efd);
+        }
+        .function-button.btn-success.active {
+            background: linear-gradient(145deg, #157347, #198754);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        
+        /* Payment Summary Cards */
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stats-card h6 {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stats-card .stats-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .stats-card .stats-trend {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .stats-card .stats-trend i {
+            margin-right: 5px;
+        }
+        
+        .stats-card .stats-trend.positive {
+            color: #28a745;
+        }
+        
+        .stats-card .stats-trend.negative {
+            color: #dc3545;
+        }
+        
+        .stats-card .stats-percentage {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .stats-card .progress {
+            height: 4px;
+            margin-top: 15px;
+            background-color: #e9ecef;
+            border-radius: 2px;
+        }
+        
+        .stats-card .progress-bar {
+            border-radius: 2px;
+        }
+        
+        .stats-card.fees { border-left: 4px solid #4e73df; }
+        .stats-card.received { border-left: 4px solid #1cc88a; }
+        .stats-card.pending { border-left: 4px solid #f6c23e; }
+        .stats-card.old-due { border-left: 4px solid #e74a3b; }
+        .stats-card.customers { border-left: 4px solid #36b9cc; }
+        .stats-card.paid-customers { border-left: 4px solid #2ecc71; }
+        
+        /* Export button styles */
+        .export-btn {
+            background: linear-gradient(145deg, #20bf6b, #1b9e59);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .export-btn i {
+            font-size: 1rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">NBT Analysis</h1>
+        
+        <!-- Main Navigation -->
+        <div class="nav-section">
+            <h4 class="mb-3">Payment Tracking System</h4>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('upload')">
+                        <i class="fas fa-upload"></i> Upload Data
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('summary')">
+                        <i class="fas fa-table"></i> Payment Summary
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('search')">
+                        <i class="fas fa-search"></i> Search Payment Details
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('city')">
+                        <i class="fas fa-map-marker-alt"></i> City Statistics
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('renewals')">
+                        <i class="fas fa-calendar-alt"></i> Upcoming Renewals
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('batch')">
+                        <i class="fas fa-chart-bar"></i> Batch-wise Pending
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('active')">
+                        <i class="fas fa-chart-line"></i> Active Analysis
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('unplugged')">
+                        <i class="fas fa-user-slash"></i> Unplugged Analysis
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary function-button" onclick="showSection('rm')">
+                        <i class="fas fa-user"></i> RM Pending Payments
+                    </button>
+                </div>
+            </div>
+
+            <h4 class="mb-3 mt-4">Active Analysis</h4>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <button class="btn btn-success function-button" onclick="showSection('nbt-upload')">
+                        <i class="fas fa-file-excel"></i> Upload NBT Data
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success function-button" onclick="showSection('group-analysis')">
+                        <i class="fas fa-chart-bar"></i> Group Analysis
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success function-button" onclick="showSection('data-summary')">
+                        <i class="fas fa-table"></i> Data Summary
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success function-button" onclick="showSection('visualizations')">
+                        <i class="fas fa-chart-pie"></i> Visualizations
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success function-button" onclick="showSection('renewal-dates')">
+                        <i class="fas fa-calendar-alt"></i> Renewal Dates
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success function-button" onclick="showSection('birthdays')">
+                        <i class="fas fa-birthday-cake"></i> Upcoming Birthdays
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success function-button" onclick="showSection('participant-details')">
+                        <i class="fas fa-user-circle"></i> Participant Details
+                    </button>
+                </div>
+
+           
+                </div>
+            </div>
+
+        <!-- File Upload Section -->
+        <div id="upload-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title">Upload Payment Data</h5>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" class="form-control" id="fileInput" accept=".xlsx">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Payment Summary Section -->
+        <div id="summary-section" class="content-section card section">
+            <div class="card-body">
+                <div class="section-header">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <h5 class="card-title mb-0">Payment Summary</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control year-select" id="summaryYearSelect">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" onclick="getPaymentSummary()">Get Summary</button>
+                    </div>
+                </div>
+                <div id="summaryResults" class="row"></div>
+            </div>
+        </div>
+
+        <!-- Payment Details Search -->
+        <div id="search-section" class="content-section card section">
+            <div class="card-body">
+                <div class="section-header">
+                    <h5 class="card-title">Search Payment Details</h5>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control mb-3" id="searchName" placeholder="Enter name or email">
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control mb-3" id="searchYearSelect">
+                            <option value="all">All Years</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary mb-3" onclick="searchPaymentDetails()">Search</button>
+                    </div>
+                </div>
+                <div id="searchResults">
+                    <table id="searchResultsTable" class="table table-striped" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Year</th>
+                                <th>Old Due</th>
+                                <th>Total Fees</th>
+                                <th>Received</th>
+                                <th>Pending</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- City Statistics -->
+        <div id="city-section" class="content-section card section">
+            <div class="card-body">
+                <div class="section-header">
+                    <i class="fas fa-city"></i>
+                    <h5 class="card-title mb-0">City Statistics</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control year-select" id="cityStatsYearSelect">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" onclick="getCityStats()">Get Statistics</button>
+                    </div>
+                </div>
+                <div id="cityResults" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Upcoming Renewals -->
+        <div id="renewals-section" class="content-section card section">
+            <div class="card-body">
+                <div class="section-header">
+                    <h5 class="card-title">Upcoming Renewals</h5>
+                    <button class="export-btn" onclick="exportRenewals()">
+                        <i class="fas fa-file-excel"></i> Export Renewals
+                    </button>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control year-select" id="renewalsYearSelect">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="renewalsMonthSelect">
+                            <option value="">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary" onclick="checkUpcomingRenewals()">Check Renewals</button>
+                    </div>
+                </div>
+                <div id="renewalsResults"></div>
+            </div>
+        </div>
+
+        <!-- RM Pending Payments -->
+        <div id="rm-section" class="content-section card section">
+            <div class="card-body">
+                <div class="section-header">
+                    <h5 class="card-title">RM Pending Analysis</h5>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control year-select" id="rmYearSelect">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" onclick="checkRMPending()">Check Pending</button>
+                    </div>
+                </div>
+                <div id="rmResults" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Batch-wise Pending -->
+        <div id="batch-section" class="content-section card section">
+            <div class="card-body">
+                <div class="section-header">
+                    <h5 class="card-title">Batch-wise Pending Analysis</h5>
+                    <div>
+                        <button class="export-btn me-2" onclick="exportBatchPendingSummary()">
+                            <i class="fas fa-file-excel"></i> Export Summary
+                        </button>
+                        <button class="export-btn" id="exportBatchBtn" onclick="exportSelectedBatchPending()" style="display: none;">
+                            <i class="fas fa-file-excel"></i> Export Selected Batch
+                        </button>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control year-select" id="batchYearSelect">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" onclick="loadBatches()">Load Batches</button>
+                    </div>
+                </div>
+                <div id="batch-buttons" class="row mb-3"></div>
+                <div id="batch-results"></div>
+            </div>
+        </div>
+
+        <!-- Active Analysis -->
+        <div id="active-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title">Active Analysis</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control year-select" id="activeYearSelect">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" onclick="getActiveAnalysis()">Get Analysis</button>
+                    </div>
+                </div>
+                <div id="activeResults" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Unplugged Analysis Section -->
+        <div id="unplugged-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title">Unplugged Participants Analysis</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control year-select" id="unpluggedYearSelect">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" onclick="getUnpluggedAnalysis()">Get Analysis</button>
+                    </div>
+                </div>
+                <div id="unplugged-results"></div>
+            </div>
+        </div>
+
+        <!-- NBT Active Analysis Sections -->
+        <div id="nbt-upload-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-file-excel"></i> Upload NBT Active Participants Data</h5>
+                <form id="nbtUploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" class="form-control" id="nbtFileInput" accept=".xlsx">
+                    </div>
+                    <button type="submit" class="btn btn-success">Upload</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="group-analysis-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-chart-bar"></i> Group Analysis</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control" id="groupByColumn">
+                            <option value="">Select Column</option>
+                            <option value="BATCH">Batch</option>
+                            <option value="CITY">City</option>
+                            <option value="NEW RM">RM</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success" onclick="getGroupAnalysis()">Analyze</button>
+                    </div>
+                </div>
+                <div id="groupAnalysisResults" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div id="data-summary-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-table"></i> Data Summary</h5>
+                <button class="btn btn-success mb-3" onclick="getDataSummary()">Generate Summary</button>
+                <div id="dataSummaryResults" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div id="visualizations-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-chart-pie"></i> Data Visualizations</h5>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <select class="form-control" id="visualizationType">
+                            <option value="">Select Visualization</option>
+                            <option value="bar">Bar Chart</option>
+                            <option value="pie">Pie Chart</option>
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="box">Box Plot</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="xColumn">
+                            <option value="">Select X Column</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="yColumnContainer" style="display: none;">
+                        <select class="form-control" id="yColumn">
+                            <option value="">Select Y Column</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success" onclick="generateVisualization()">Generate</button>
+                    </div>
+                </div>
+                <div id="visualizationResults" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div id="renewal-dates-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Upcoming Renewal Dates</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-control" id="groupByRenewal">
+                            <option value="">Group By</option>
+                            <option value="BATCH">Batch</option>
+                            <option value="CITY">City</option>
+                            <option value="NEW RM">RM</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success" onclick="getRenewalDates()">Get Renewals</button>
+                    </div>
+                </div>
+                <div id="renewalDatesResults" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div id="birthdays-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-birthday-cake"></i> Upcoming Birthdays</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="month" class="form-control" id="birthdayMonth">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success" onclick="getUpcomingBirthdays()">Search</button>
+                    </div>
+                </div>
+                <div id="birthdaysResults"></div>
+            </div>
+        </div>
+
+        <div id="participant-details-section" class="content-section card section">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-user-circle"></i> Participant Details</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="participantName" placeholder="Enter participant name">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success" onclick="getParticipantDetails()">Search</button>
+                    </div>
+                </div>
+                <div id="participantDetailsResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        // Show/Hide Sections
+        function showSection(sectionId) {
+            // Hide all sections first
+            $('.content-section').hide();
+            
+            // Show the selected section
+            $(`#${sectionId}-section`).show();
+            
+            // Update active state of buttons
+            $('.function-button').removeClass('active');
+            $(`button[onclick="showSection('${sectionId}')"]`).addClass('active');
+        }
+        
+        // Load Available Years
+        function loadAvailableYears() {
+            $.ajax({
+                url: '/get_available_years',
+                method: 'GET',
+                success: function(response) {
+                    if (response.years) {
+                        const years = response.years;
+                        const yearSelects = [
+                            '#summaryYearSelect',
+                            '#cityStatsYearSelect',
+                            '#renewalsYearSelect',
+                            '#rmYearSelect',
+                            '#batchYearSelect',
+                            '#searchYearSelect',
+                            '#activeYearSelect',
+                            '#unpluggedYearSelect'
+                        ];
+
+                        yearSelects.forEach(function(selectId) {
+                            const select = $(selectId);
+                            select.empty();
+                            
+                            // Add default option
+                            if (selectId === '#searchYearSelect') {
+                                select.append('<option value="all">All Years</option>');
+                            } else {
+                                select.append('<option value="">Select Year</option>');
+                            }
+                            
+                            // Add year options
+                            years.forEach(function(year) {
+                                select.append(`<option value="${year}">${year}</option>`);
+                            });
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading years:', error);
+                }
+            });
+        }
+
+        // File Upload
+        $('#uploadForm').submit(function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('file', $('#fileInput')[0].files[0]);
+
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert('File uploaded successfully');
+                    loadAvailableYears();
+                },
+                error: function(error) {
+                    alert('Error uploading file: ' + error.responseJSON.error);
+                }
+            });
+        });
+
+        // Get Payment Summary
+        function getPaymentSummary() {
+            const year = $('#summaryYearSelect').val();
+            if (!year) {
+                alert('Please select a year');
+                return;
+            }
+
+            $.ajax({
+                url: '/get_payment_summary',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year }),
+                success: function(data) {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    displayPaymentSummary(data);
+                },
+                error: function(xhr) {
+                    alert('Error fetching payment summary');
+                }
+            });
+        }
+
+        // Search Payment Details
+        function searchPaymentDetails() {
+            const name = $('#searchName').val().trim();
+            const year = $('#searchYearSelect').val();
+            
+            if (!name) {
+                alert('Please enter a name or email to search');
+                return;
+            }
+            
+            // Show loading state
+            $('#searchResultsTable tbody').html('<tr><td colspan="7" class="text-center">Searching...</td></tr>');
+            $('#searchResultsTable').show();
+            
+            $.ajax({
+                url: '/get_payment_details',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    name: name,
+                    year: year
+                }),
+                success: function(data) {
+                    const tbody = $('#searchResultsTable tbody');
+                    tbody.empty();
+                    
+                    if (data.length === 0) {
+                        tbody.html('<tr><td colspan="7" class="text-center">No results found</td></tr>');
+                    } else {
+                        data.forEach(function(item) {
+                            const row = $('<tr>').append(
+                                $('<td>').text(item.Name || ''),
+                                $('<td>').text(item['Email Address'] || ''),
+                                $('<td>').text(item.Year || ''),
+                                $('<td>').text('₹' + (item.Old_Due || 0).toLocaleString()),
+                                $('<td>').text('₹' + (item.Total_Fees || 0).toLocaleString()),
+                                $('<td>').text('₹' + (item.Received || 0).toLocaleString()),
+                                $('<td>').text('₹' + (item.Pending || 0).toLocaleString())
+                            );
+                            tbody.append(row);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    $('#searchResultsTable tbody').html(
+                        '<tr><td colspan="7" class="text-center text-danger">Error searching payment details</td></tr>'
+                    );
+                }
+            });
+        }
+
+        // Add event listener for Enter key on search input
+        $('#searchName').keypress(function(event) {
+            if (event.keyCode === 13) { // Enter key
+                searchPaymentDetails();
+            }
+        });
+
+        // Get City Statistics
+        function getCityStats() {
+            const year = $('#cityStatsYearSelect').val();
+            if (!year) {
+                alert('Please select a year');
+                return;
+            }
+
+            $.ajax({
+                url: '/get_city_stats',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year }),
+                success: function(data) {
+                    displayCityStats(data);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error fetching city stats: ' + errorMsg);
+                }
+            });
+        }
+
+        // Check Upcoming Renewals
+        function checkUpcomingRenewals() {
+            const year = $('#renewalsYearSelect').val();
+            const month = $('#renewalsMonthSelect').val();
+            if (!year) {
+                alert('Please select a year');
+                return;
+            }
+            
+            $.ajax({
+                url: '/get_upcoming_renewals',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year, month: month }),
+                success: function(data) {
+                    displayRenewals(data);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error fetching renewal data: ' + errorMsg);
+                }
+            });
+        }
+
+        // Check RM Pending
+        function checkRMPending() {
+            const year = $('#rmYearSelect').val();
+            if (!year) {
+                alert('Please select a year');
+                return;
+            }
+
+            $.ajax({
+                url: '/get_rm_pending',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year }),
+                success: function(data) {
+                    displayRMPending(data);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error fetching RM pending: ' + errorMsg);
+                }
+            });
+        }
+
+        // Batch Analysis Functions
+        function loadBatches() {
+            const year = $('#batchYearSelect').val();
+            if (!year) {
+                alert('Please select a year first');
+                return;
+            }
+            
+            $.ajax({
+                url: '/get_batch_list',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year }),
+                success: function(response) {
+                    displayBatchButtons(response.batches);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error loading batches: ' + errorMsg);
+                }
+            });
+        }
+
+        function displayBatchButtons(batches) {
+            let html = '';
+            batches.forEach(batch => {
+                html += `
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-outline-primary" onclick="getBatchPending('${batch}')">${batch}</button>
+                    </div>`;
+            });
+            $('#batch-buttons').html(html);
+            $('#batch-results').html('');
+        }
+
+        function getBatchPending(batch) {
+            const year = $('#batchYearSelect').val();
+            $.ajax({
+                url: '/get_batch_pending',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year, batch: batch }),
+                success: function(data) {
+                    displayBatchPending(data);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error fetching batch data: ' + errorMsg);
+                }
+            });
+        }
+
+        function displayBatchPending(data) {
+            let html = `
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6>Batch: ${data.batch}</h6>
+                        <p>Total Pending Amount: ₹${data.total_pending.toLocaleString()}</p>
+                        <p>Total Participants: ${data.customer_count}</p>
+                        
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Pending Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+            
+            data.pending_participants.forEach(participant => {
+                html += `
+                    <tr>
+                        <td>${participant.Name || ''}</td>
+                        <td>${participant['Email Address'] || ''}</td>
+                        <td>₹${participant.Pending.toLocaleString()}</td>
+                    </tr>`;
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            
+            $('#batch-results').html(html);
+        }
+
+        // Get Active Analysis
+        function getActiveAnalysis() {
+            const year = $('#activeYearSelect').val();
+            if (!year) {
+                alert('Please select a year');
+                return;
+            }
+
+            $.ajax({
+                url: '/get_active_analysis',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year }),
+                success: function(data) {
+                    displayActiveAnalysis(data);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error fetching active analysis: ' + errorMsg);
+                }
+            });
+        }
+
+        // Get Unplugged Analysis
+        function getUnpluggedAnalysis() {
+            const year = $('#unpluggedYearSelect').val();
+            if (!year) {
+                alert('Please select a year');
+                return;
+            }
+
+            $.ajax({
+                url: '/get_unplugged_analysis',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ year: year }),
+                success: function(data) {
+                    displayUnpluggedAnalysis(data);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error fetching unplugged analysis: ' + errorMsg);
+                }
+            });
+        }
+
+        // Document ready function
+        $(document).ready(function() {
+            loadColumns();
+            loadAvailableYears();
+            
+            // Add active and unplugged year selects to the loadAvailableYears function
+            const yearSelects = [
+                '#renewalsYearSelect',
+                '#rmYearSelect',
+                '#batchYearSelect',
+                '#searchYearSelect',
+                '#activeYearSelect',
+                '#unpluggedYearSelect'
+            ];
+
+            yearSelects.forEach(function(selectId) {
+                const select = $(selectId);
+                if (select.length) {
+                    select.empty().append('<option value="">Select Year</option>');
+                    years.forEach(year => {
+                        select.append(`<option value="${year}">${year}</option>`);
+                    });
+                }
+            });
+        });
+
+        // Display Functions
+        function displayPaymentSummary(data) {
+            if (!data) {
+                $('#summaryResults').html('<div class="alert alert-info">No data available</div>');
+                return;
+            }
+
+            const collectionRate = ((data['Total Received'] / data['Total Fees']) * 100).toFixed(1);
+            const pendingRate = ((data['Total Pending'] / data['Total Fees']) * 100).toFixed(1);
+            const paidCustomerRate = ((data['Fully Paid Customers'] / data['Total Customers']) * 100).toFixed(1);
+            
+            let html = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">₹${data['Total Fees'].toLocaleString()}</div>
+                            <div class="stats-label">Total Fees</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">₹${data['Total Received'].toLocaleString()}</div>
+                            <div class="stats-label">Total Received</div>
+                            <div class="stats-info">${collectionRate}% collected</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">₹${data['Total Pending'].toLocaleString()}</div>
+                            <div class="stats-label">Total Pending</div>
+                            <div class="stats-info">${pendingRate}% pending</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">₹${data['Total Old Due'].toLocaleString()}</div>
+                            <div class="stats-label">Total Old Due</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">${data['Total Customers']}</div>
+                            <div class="stats-label">Total Customers</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">${data['Fully Paid Customers']}</div>
+                            <div class="stats-label">Fully Paid Customers</div>
+                            <div class="stats-info">${paidCustomerRate}% of total</div>
+                        </div>
+                    </div>
+                </div>`;
+            
+            $('#summaryResults').html(html);
+        }
+
+        function displayCityStats(data) {
+            if (data.length === 0) {
+                $('#cityResults').html('<p>No data available for the selected year.</p>');
+                return;
+            }
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>City</th>
+                                <th>Total Pending</th>
+                                <th>Number of Customers</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            data.forEach(city => {
+                html += `
+                    <tr>
+                        <td>${city.City}</td>
+                        <td>₹${city['Total Pending'].toLocaleString()}</td>
+                        <td>${city['Number of Customers']}</td>
+                    </tr>`;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>`;
+            
+            $('#cityResults').html(html);
+        }
+
+        function displayRenewals(data) {
+            if (data.length === 0) {
+                $('#renewalsResults').html('<div class="alert alert-info">No renewals found for the selected year</div>');
+                return;
+            }
+            
+            let html = '<table class="table table-striped">';
+            html += '<thead><tr>';
+            html += '<th>Name</th>';
+            html += '<th>Email</th>';
+            html += '<th>End Date</th>';
+            html += '<th>Days Until Renewal</th>';
+            html += '<th>Status</th>';
+            html += '</tr></thead><tbody>';
+            
+            data.forEach(item => {
+                const daysUntilRenewal = parseInt(item['Days Until Renewal']);
+                const rowClass = item.Status === 'Past Due' ? 'table-danger' : 
+                               (daysUntilRenewal <= 30 ? 'table-warning' : '');
+                
+                html += `<tr class="${rowClass}">`;
+                html += `<td>${item['Name']}</td>`;
+                html += `<td>${item['Email Address']}</td>`;
+                html += `<td>${item['Subscription End Date']}</td>`;
+                html += `<td>${daysUntilRenewal}</td>`;
+                html += `<td><span class="badge ${item.Status === 'Past Due' ? 'bg-danger' : 'bg-warning'}">${item.Status}</span></td>`;
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            $('#renewalsResults').html(html);
+        }
+
+        function displayRMPending(data) {
+            let html = '<table class="table"><thead><tr>' +
+                '<th>RM</th><th>Total Pending Amount</th></tr></thead><tbody>';
+            
+            for (const [rm, amount] of Object.entries(data)) {
+                html += `<tr>
+                    <td>${rm}</td>
+                    <td>₹${amount.toLocaleString()}</td>
+                </tr>`;
+            }
+            html += '</tbody></table>';
+            $('#rmResults').html(html);
+        }
+
+        function displayActiveAnalysis(data) {
+            let html = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">${data.active_participants}</div>
+                            <div class="stats-label">Active Participants</div>
+                            <div class="stats-info">Out of ${data.total_participants} total participants</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">₹${data.total_received.toLocaleString()}</div>
+                            <div class="stats-label">Total Received</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">₹${data.total_pending.toLocaleString()}</div>
+                            <div class="stats-label">Total Pending</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <div class="stats-value">${data.fully_paid}</div>
+                            <div class="stats-label">Fully Paid</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <div class="stats-value">${data.partially_paid}</div>
+                            <div class="stats-label">Partially Paid</div>
+                        </div>
+                    </div>
+                </div>`;
+            $('#activeResults').html(html);
+        }
+
+        function displayUnpluggedAnalysis(data) {
+            let html = `
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">${data.unplugged_participants}</div>
+                            <div class="stats-label">Unplugged Participants</div>
+                            <div class="stats-info">Out of ${data.total_participants} total participants</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-value">₹${data.total_pending.toLocaleString()}</div>
+                            <div class="stats-label">Total Pending Amount</div>
+                        </div>
+                    </div>
+                </div>`;
+
+            if (data.unplugged_list && data.unplugged_list.length > 0) {
+                html += `
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>City</th>
+                                    <th>Pending Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                data.unplugged_list.forEach(participant => {
+                    html += `
+                        <tr>
+                            <td>${participant.Name}</td>
+                            <td>${participant.Email_Address}</td>
+                            <td>${participant.City}</td>
+                            <td>₹${participant.Pending.toLocaleString()}</td>
+                        </tr>`;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>`;
+            } else {
+                html += '<p class="mt-3">No unplugged participants found.</p>';
+            }
+            
+            $('#unplugged-results').html(html);
+        }
+
+        // NBT Active Analysis Functions
+        $('#nbtUploadForm').submit(function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const fileInput = $('#nbtFileInput')[0];
+            formData.append('file', fileInput.files[0]);
+            
+            $.ajax({
+                url: '/upload_nbt',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert('NBT data uploaded successfully!');
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error uploading file: ' + errorMsg);
+                }
+            });
+        });
+
+        function getGroupAnalysis() {
+            const column = $('#groupByColumn').val();
+            if (!column) {
+                alert('Please select a column');
+                return;
+            }
+            
+            $.ajax({
+                url: '/group_analysis',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ column: column }),
+                success: function(data) {
+                    let html = '<div class="table-responsive"><table class="table table-striped">';
+                    html += '<thead><tr><th>' + column + '</th><th>Count</th></tr></thead><tbody>';
+                    
+                    Object.entries(data).forEach(([key, value]) => {
+                        html += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                    });
+                    
+                    html += '</tbody></table></div>';
+                    $('#groupAnalysisResults').html(html);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error: ' + errorMsg);
+                }
+            });
+        }
+
+        function getDataSummary() {
+            $.ajax({
+                url: '/data_summary',
+                type: 'GET',
+                success: function(data) {
+                    let html = '<div class="row">';
+                    
+                    // Main statistics cards
+                    const mainStats = [
+                        { title: 'Total Participants', value: data.total_participants, icon: 'users' },
+                        { title: 'Total Columns', value: data.total_columns, icon: 'table' },
+                        { title: 'Unique Batches', value: data.unique_batches, icon: 'layer-group' },
+                        { title: 'Unique Cities', value: data.unique_cities, icon: 'city' },
+                        { title: 'Unique RMs', value: data.unique_rms, icon: 'user-tie' },
+                        { title: 'Dataset Shape', value: data.dataset_shape, icon: 'database' }
+                    ];
+                    
+                    mainStats.forEach(stat => {
+                        html += `
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-${stat.icon} fa-2x text-primary me-3"></i>
+                                            <div>
+                                                <h6 class="card-title mb-0">${stat.title}</h6>
+                                                <h3 class="mb-0">${stat.value}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    
+                    // Column information
+                    html += `
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Column Information</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Column Name</th>
+                                                <th>Missing Values</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                    `;
+                    
+                    data.column_names.forEach(column => {
+                        html += `
+                            <tr>
+                                <td>${column}</td>
+                                <td>${data.missing_values[column] || 0}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    $('#dataSummaryResults').html(html);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error: ' + errorMsg);
+                }
+            });
+        }
+
+        function generateVisualization() {
+            const type = $('#visualizationType').val();
+            const xColumn = $('#xColumn').val();
+            const yColumn = $('#yColumn').val();
+            
+            if (!type || !xColumn) {
+                alert('Please select visualization type and X column');
+                return;
+            }
+            
+            if (type === 'scatter' && !yColumn) {
+                alert('Please select Y column for scatter plot');
+                return;
+            }
+            
+            $.ajax({
+                url: '/generate_visualization',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ 
+                    type: type, 
+                    x_column: xColumn,
+                    y_column: yColumn 
+                }),
+                success: function(data) {
+                    // Update column selections if not already populated
+                    if ($('#xColumn option').length <= 1) {
+                        const columns = data.columns;
+                        let xOptions = '<option value="">Select X Column</option>';
+                        let yOptions = '<option value="">Select Y Column</option>';
+                        
+                        columns.forEach(column => {
+                            xOptions += `<option value="${column}">${column}</option>`;
+                            yOptions += `<option value="${column}">${column}</option>`;
+                        });
+                        
+                        $('#xColumn').html(xOptions);
+                        $('#yColumn').html(yOptions);
+                    }
+                    
+                    const plot = JSON.parse(data.plot);
+                    Plotly.newPlot('visualizationResults', plot.data, plot.layout);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error occurred';
+                    alert('Error: ' + errorMsg);
+                }
+            });
+        }
+
+        function getParticipantDetails() {
+            const name = $('#participantName').val();
+            if (!name) {
+                alert('Please enter participant name');
+                return;
+            }
+            
+            console.log('Searching for participant:', name); // Debug log
+            
+            $.ajax({
+                url: '/participant_details',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ name: name }),
+                success: function(data) {
+                    console.log('Received data:', data); // Debug log
+                    let html = '';
+                    
+                    if (data.length === 0) {
+                        html = '<div class="alert alert-info">No participants found with that name.</div>';
+                    } else {
+                        data.forEach((participant, index) => {
+                            html += `
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Participant Details</h5>
+                                        <div class="row">
+                            `;
+                            
+                            // Define the order and grouping of fields
+                            const fieldGroups = {
+                                'Personal Information': [
+                                    { key: 'NAME', icon: 'user' },
+                                    { key: 'DOB', icon: 'birthday-cake' },
+                                    { key: 'EMAIL', icon: 'envelope' },
+                                    { key: 'MOBILE', icon: 'phone' }
+                                ],
+                                'Location & Company': [
+                                    { key: 'CITY', icon: 'city' },
+                                    { key: 'ADDRESS', icon: 'map-marker-alt' },
+                                    { key: 'Company Name', icon: 'building' }
+                                ],
+                                'Program Details': [
+                                    { key: 'BATCH', icon: 'layer-group' },
+                                    { key: 'NEW RM', icon: 'user-tie' },
+                                    { key: 'RENEWAL DATE', icon: 'calendar-alt' }
+                                ]
+                            };
+                            
+                            // Render each group
+                            Object.entries(fieldGroups).forEach(([groupName, fields]) => {
+                                html += `
+                                    <div class="col-12 mb-3">
+                                        <h6 class="text-muted">${groupName}</h6>
+                                        <div class="row">
+                                `;
+                                
+                                fields.forEach(field => {
+                                    const value = participant[field.key] || '-';
+                                    html += `
+                                        <div class="col-md-4 mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-${field.icon} text-primary me-2"></i>
+                                                <div>
+                                                    <small class="text-muted">${field.key}</small>
+                                                    <div class="fw-bold">${value}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                
+                                html += '</div></div>';
+                            });
+                            
+                            html += '</div></div></div>';
+                        });
+                    }
+                    
+                    $('#participantDetailsResults').html(html);
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr); // Debug log
+                    let errorMessage = 'Error searching for participant';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    $('#participantDetailsResults').html(`
+                        <div class="alert alert-danger">
+                            ${errorMessage}
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        // Add event listener for Enter key on participant name input
+        $('#participantName').keypress(function(event) {
+            if (event.keyCode === 13) { // Enter key
+                getParticipantDetails();
+            }
+        });
+
+        function getRenewalDates() {
+            const groupBy = $('#groupByRenewal').val();
+            
+            $.ajax({
+                url: '/renewal_dates',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ group_by: groupBy }),
+                success: function(data) {
+                    let html = '<div class="table-responsive"><table class="table table-striped">';
+                    
+                    if (groupBy) {
+                        html += `
+                            <thead>
+                                <tr>
+                                    <th>${groupBy}</th>
+                                    <th>Names</th>
+                                    <th>Renewal Dates</th>
+                                    <th>Contact Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        `;
+                        
+                        Object.entries(data).forEach(([key, value]) => {
+                            html += `
+                                <tr>
+                                    <td>${key}</td>
+                                    <td>${value.NAME.join('<br>')}</td>
+                                    <td>${value['RENEWAL DATE'].join('<br>')}</td>
+                                    <td>
+                                        Email: ${value.EMAIL.join('<br>')}
+                                        <br>
+                                        Mobile: ${value.MOBILE.join('<br>')}
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        html += `
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Renewal Date</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>RM</th>
+                                    <th>Batch</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        `;
+                        
+                        data.forEach(item => {
+                            html += `
+                                <tr>
+                                    <td>${item.NAME}</td>
+                                    <td>${item['RENEWAL DATE']}</td>
+                                    <td>${item.EMAIL}</td>
+                                    <td>${item.MOBILE}</td>
+                                    <td>${item['NEW RM']}</td>
+                                    <td>${item.BATCH}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    
+                    html += '</tbody></table></div>';
+                    $('#renewalDatesResults').html(html);
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        alert('Error: ' + xhr.responseJSON.error);
+                    } else {
+                        alert('Error retrieving renewal dates');
+                    }
+                }
+            });
+        }
+
+        function getUpcomingBirthdays() {
+            const month = $('#birthdayMonth').val();
+            if (!month) {
+                alert('Please select a month');
+                return;
+            }
+            
+            $.ajax({
+                url: '/upcoming_birthdays',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ month: month }),
+                success: function(data) {
+                    let html = '<div class="table-responsive"><table class="table table-striped">';
+                    html += `
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Birthday</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>City</th>
+                                <th>Batch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    `;
+                    
+                    data.forEach(item => {
+                        html += `
+                            <tr>
+                                <td>${item.NAME}</td>
+                                <td>${item.DOB}</td>
+                                <td>${item.EMAIL}</td>
+                                <td>${item.MOBILE}</td>
+                                <td>${item.CITY}</td>
+                                <td>${item.BATCH}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += '</tbody></table></div>';
+                    $('#birthdaysResults').html(html);
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        alert('Error: ' + xhr.responseJSON.error);
+                    } else {
+                        alert('Error retrieving birthdays');
+                    }
+                }
+            });
+        }
+
+        // Update visualization type handling
+        $('#visualizationType').change(function() {
+            const type = $(this).val();
+            const yColumnContainer = $('#yColumnContainer');
+            
+            // Only show Y column selection for scatter plots
+            if (type === 'scatter') {
+                yColumnContainer.show();
+            } else {
+                yColumnContainer.hide();
+            }
+            
+            // Load columns if not already populated
+            if ($('#xColumn option').length <= 1) {
+                loadColumns();
+            }
+        });
+
+        function loadColumns() {
+            $.ajax({
+                url: '/data_summary',
+                type: 'GET',
+                success: function(data) {
+                    const columns = data.column_names;
+                    let xOptions = '<option value="">Select X Column</option>';
+                    let yOptions = '<option value="">Select Y Column</option>';
+                    
+                    columns.forEach(column => {
+                        xOptions += `<option value="${column}">${column}</option>`;
+                        yOptions += `<option value="${column}">${column}</option>`;
+                    });
+                    
+                    $('#xColumn').html(xOptions);
+                    $('#yColumn').html(yOptions);
+                },
+                error: function(xhr) {
+                    console.error('Error loading columns:', xhr);
+                }
+            });
+        }
+
+        // Load columns when page loads
+        $(document).ready(function() {
+            loadColumns();
+            loadAvailableYears();
+        });
+        
+        // Hide all sections first
+        $('.content-section').hide();
+        
+        // Show upload section by default
+        const uploadSection = document.getElementById('upload-section');
+        if (uploadSection) {
+            uploadSection.style.display = 'block';
+        }
+        
+        // Add active state to upload button
+        const uploadButton = document.querySelector('[onclick="showSection(\'upload\')"]');
+        if (uploadButton) {
+            uploadButton.classList.add('active');
+        }
+        
+        // Export functions
+        function exportRenewals() {
+            const year = $('#renewalsYearSelect').val();
+            const month = $('#renewalsMonthSelect').val();
+            if (!year) {
+                alert('Please select a year first');
+                return;
+            }
+            
+            window.location.href = `/export_renewals?year=${year}${month ? '&month=' + month : ''}`;
+        }
+
+        function exportBatchPendingSummary() {
+            const year = $('#batchYearSelect').val();
+            if (!year) {
+                alert('Please select a year first');
+                return;
+            }
+            
+            window.location.href = `/export_batch_pending_summary?year=${year}`;
+        }
+
+        function exportSelectedBatchPending() {
+            const year = $('#batchYearSelect').val();
+            const selectedBatch = $('#selectedBatch').val();
+            if (!year || !selectedBatch) {
+                alert('Please select both year and batch');
+                return;
+            }
+            
+            window.location.href = `/export_selected_batch_pending?year=${year}&batch=${selectedBatch}`;
+        }
+
+        // Show/hide batch export button when batch is selected
+        $('#selectedBatch').change(function() {
+            $('#exportBatchBtn').toggle(!!$(this).val());
+        });
+    </script>
+</body>
+</html>
